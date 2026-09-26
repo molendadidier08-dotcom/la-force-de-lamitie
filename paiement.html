@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Paiement - La Force de l'Amitié</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial;background:#f3f6fb;color:#172033}
+nav{background:#164579;padding:15px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}nav a{color:#fff;text-decoration:none;background:#245b96;padding:12px 18px;border-radius:25px;font-weight:bold}
+.box{max-width:650px;margin:35px auto;background:white;padding:30px;border-radius:24px;box-shadow:0 8px 25px #0001}h1{color:#164579;text-align:center}
+.info{background:#fff4bf;padding:18px;border-radius:15px;line-height:1.8;margin:20px 0}
+input{width:100%;padding:14px;margin:8px 0 15px;border:1px solid #ccd4df;border-radius:10px;font-size:16px}
+button{border:0;background:#ffd000;padding:14px 20px;border-radius:30px;font-weight:bold;font-size:16px;cursor:pointer;margin:5px}
+.blue{background:#164579;color:#fff}.green{background:#16864a;color:#fff}
+#receipt{display:none;border:2px dashed #164579;padding:20px;margin-top:20px}
+</style>
+</head>
+<body>
+<nav><a href="index.html">🏠 ACCUEIL</a><a href="connexion.html">🔐 CONNEXION</a><a href="paiement.html">💰 PAIEMENT</a><a href="moi.html">👤 MOI</a></nav>
+<div class="box">
+<h1>💰 Paiement M-Pesa</h1>
+<div class="info">
+<b>Numéro destinataire :</b> 0816815205<br>
+<b>Montant minimum :</b> 2 000 CDF<br><br>
+Faites le paiement directement dans le service/app M-Pesa. <b>Ne saisissez jamais votre mot de passe M-Pesa sur ce site.</b>
+</div>
+<p><b>Après avoir effectué le paiement :</b></p>
+<form id="payForm">
+<label>Nom complet</label><input id="fullname" required>
+<label>Montant payé (CDF)</label><input id="amount" type="number" min="2000" value="2000" required>
+<label>Référence / numéro de transaction</label><input id="reference" required>
+<button type="submit" class="green">✅ J'ai effectué le paiement</button>
+</form>
+<div id="receipt">
+<h2>🧾 Reçu</h2><div id="receiptText"></div>
+<button id="download" class="blue">⬇️ Télécharger le reçu</button>
+<button id="whatsapp">📋 Préparer WhatsApp</button>
+</div>
+</div>
+<script>
+function users(){return JSON.parse(localStorage.getItem("lfa_users")||"[]")}
+function saveUsers(u){localStorage.setItem("lfa_users",JSON.stringify(u))}
+document.getElementById("payForm").addEventListener("submit",e=>{
+ e.preventDefault();
+ const amount=Number(document.getElementById("amount").value);
+ if(amount<2000){alert("Le montant minimum est de 2 000 CDF.");return}
+ const fullname=document.getElementById("fullname").value.trim(), reference=document.getElementById("reference").value.trim();
+ const payment={id:Date.now(),fullname,amount,reference,date:new Date().toLocaleString("fr-FR"),status:"Preuve déclarée"};
+ let u=users(), current=localStorage.getItem("lfa_current"), user=u.find(x=>String(x.id)===current);
+ if(user){user.payments=user.payments||[];user.payments.push(payment);saveUsers(u)}
+ const text=`LA FORCE DE L'AMITIÉ\n\nNom complet : ${fullname}\nMontant : ${amount.toLocaleString("fr-FR")} CDF\nRéférence : ${reference}\nDate : ${payment.date}\nStatut : ${payment.status}`;
+ receiptText.innerText=text;document.getElementById("receipt").style.display="block";
+ document.getElementById("download").onclick=()=>{
+   const blob=new Blob([text],{type:"text/plain;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="recu-la-force-de-lamitie.txt";a.click();URL.revokeObjectURL(a.href);
+ };
+ document.getElementById("whatsapp").onclick=async()=>{
+   try{await navigator.clipboard.writeText(text);alert("Message copié. Ouvrez votre groupe WhatsApp et collez-le.");}
+   catch(e){prompt("Copiez ce message :",text)}
+   window.open("https://chat.whatsapp.com/K3Wv12A1a7461kdr6JHwV4?s=cl&p=a&mlu=4&ilr=4","_blank");
+ };
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Administration - La Force de l'Amitié</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial;background:#eef2f7;color:#172033}
+nav{background:#081033;padding:15px;text-align:center}nav a{color:white;text-decoration:none;margin:5px 12px}
+.box{max-width:950px;margin:25px auto;background:#fff;padding:25px;border-radius:20px;box-shadow:0 6px 25px #0001}
+input{padding:13px;width:100%;border:1px solid #ccd4df;border-radius:10px;margin:8px 0}
+button{border:0;padding:11px 15px;border-radius:22px;background:#164579;color:#fff;font-weight:bold;margin:4px;cursor:pointer}
+.red{background:#b51643}.gold{background:#ffd000;color:#111}.member{border:1px solid #d9e0e9;border-radius:15px;padding:18px;margin:15px 0}.hidden{display:none}
+</style>
+</head>
+<body>
+<nav><a href="index.html">🏠 La Force de l'Amitié</a></nav>
+<div class="box">
+<div id="loginBox">
+<h1>👑 Espace administrateur</h1>
+<p>Version de démonstration : ces identifiants doivent être remplacés par une vraie authentification serveur avant la mise en ligne.</p>
+<input id="adminUser" placeholder="Identifiant administrateur">
+<input id="adminPass" type="password" placeholder="Mot de passe administrateur">
+<button onclick="adminLogin()">Se connecter</button>
+<div id="loginMsg"></div>
+</div>
+<div id="dashboard" class="hidden">
+<h1>👑 Tableau de bord</h1>
+<div id="stats"></div>
+<input id="search" placeholder="🔎 Rechercher un membre..." oninput="render()">
+<div id="members"></div>
+<button class="red" onclick="logout()">Se déconnecter</button>
+</div>
+</div>
+<script>
+function adminLogin(){
+ if(adminUser.value==="admin" && adminPass.value==="LFA2026"){
+   sessionStorage.setItem("lfa_admin","1");loginBox.classList.add("hidden");dashboard.classList.remove("hidden");render();
+ }else loginMsg.innerText="Identifiant ou mot de passe incorrect.";
+}
+function logout(){sessionStorage.removeItem("lfa_admin");location.reload()}
+function users(){return JSON.parse(localStorage.getItem("lfa_users")||"[]")}
+function render(){
+ if(!sessionStorage.getItem("lfa_admin"))return;
+ let u=users(),q=search.value.toLowerCase(),filtered=u.filter(x=>(x.nom+" "+x.postnom+" "+x.prenom).toLowerCase().includes(q));
+ let total=u.reduce((s,x)=>(x.payments||[]).reduce((a,p)=>a+Number(p.amount),s),0);
+ stats.innerHTML=`<p><b>Membres :</b> ${u.length} &nbsp; | &nbsp; <b>Total déclaré :</b> ${total.toLocaleString("fr-FR")} CDF</p>`;
+ members.innerHTML=filtered.length?filtered.map(x=>{
+   const pays=x.payments||[];
+   const msg=`🆕 LA FORCE DE L'AMITIÉ\\n\\n👤 Membre : ${x.nom} ${x.postnom} ${x.prenom}\\n⚧ Sexe : ${x.sexe}\\n📅 Inscription : ${x.createdAt}\\n💰 Paiements déclarés : ${pays.reduce((s,p)=>s+Number(p.amount),0).toLocaleString("fr-FR")} CDF`;
+   return `<div class="member"><h3>👤 ${x.nom} ${x.postnom} ${x.prenom}</h3><p>Sexe : ${x.sexe}<br>Inscription : ${x.createdAt}</p><b>Paiements :</b>${pays.length?pays.map(p=>`<p>💰 ${Number(p.amount).toLocaleString("fr-FR")} CDF — Réf. ${p.reference} — ${p.date}</p>`).join(""):" Aucun"}<br><button class="gold" onclick='copyText(${JSON.stringify(msg)})'>📋 Copier pour WhatsApp</button><button onclick='openWA()'>📱 Ouvrir WhatsApp</button></div>`;
+ }).join(""):"<p>Aucun membre trouvé.</p>";
+}
+async function copyText(t){try{await navigator.clipboard.writeText(t);alert("Informations copiées. Ouvrez WhatsApp et collez le message.");}catch(e){prompt("Copiez le message :",t)}}
+function openWA(){window.open("https://chat.whatsapp.com/K3Wv12A1a7461kdr6JHwV4?s=cl&p=a&mlu=4&ilr=4","_blank")}
+if(sessionStorage.getItem("lfa_admin")){loginBox.classList.add("hidden");dashboard.classList.remove("hidden");render()}
+</script>
+</body>
+</html>

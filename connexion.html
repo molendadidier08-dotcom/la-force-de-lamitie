@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Connexion - La Force de l'Amitié</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial;background:#f3f6fb;color:#172033}
+nav{background:#164579;padding:15px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}nav a{color:#fff;text-decoration:none;background:#245b96;padding:12px 18px;border-radius:25px;font-weight:bold}
+.box{max-width:650px;margin:35px auto;background:#fff;padding:28px;border-radius:24px;box-shadow:0 8px 25px #0001}h1{color:#164579;text-align:center}
+input,select{width:100%;padding:14px;margin:7px 0 15px;border:1px solid #ccd4df;border-radius:10px;font-size:16px}
+button{border:0;background:#ffd000;padding:14px 25px;border-radius:30px;font-weight:bold;font-size:16px;cursor:pointer}
+.secondary{background:#164579;color:#fff}.msg{margin-top:15px;padding:12px;border-radius:10px}
+</style>
+</head>
+<body>
+<nav>
+<a href="index.html">🏠 ACCUEIL</a><a href="connexion.html">🔐 CONNEXION</a><a href="paiement.html">💰 PAIEMENT</a><a href="moi.html">👤 MOI</a>
+</nav>
+<div class="box">
+<h1>Créer mon espace</h1>
+<form id="register">
+<label>Nom</label><input id="nom" required>
+<label>Postnom</label><input id="postnom" required>
+<label>Prénom</label><input id="prenom" required>
+<label>Sexe</label><select id="sexe" required><option value="">Choisir</option><option>Féminin</option><option>Masculin</option><option>Autre</option></select>
+<label>Mot de passe du site</label><input id="password" type="password" minlength="4" required>
+<button type="submit">Créer mon compte</button>
+</form>
+<div id="message"></div>
+<hr>
+<h2>J'ai déjà un compte</h2>
+<form id="login">
+<input id="loginNom" placeholder="Nom" required>
+<input id="loginPassword" type="password" placeholder="Mot de passe du site" required>
+<button class="secondary" type="submit">Se connecter</button>
+</form>
+<div id="loginMessage"></div>
+</div>
+<script>
+function users(){return JSON.parse(localStorage.getItem("lfa_users")||"[]")}
+document.getElementById("register").addEventListener("submit",e=>{
+ e.preventDefault();
+ let u=users();
+ const nom=nomEl.value.trim(), postnom=postnomEl.value.trim(), prenom=prenomEl.value.trim(), sexe=sexeEl.value, password=passwordEl.value;
+ if(u.some(x=>x.nom.toLowerCase()===nom.toLowerCase())){message.innerHTML='<div class="msg">Ce nom est déjà utilisé. Utilisez un autre nom.</div>';return}
+ const user={id:Date.now(),nom,postnom,prenom,sexe,password,createdAt:new Date().toLocaleString("fr-FR"),payments:[]};
+ u.push(user);localStorage.setItem("lfa_users",JSON.stringify(u));localStorage.setItem("lfa_current",String(user.id));
+ message.innerHTML='<div class="msg">Compte créé avec succès. Votre espace est prêt.</div>';
+ setTimeout(()=>location.href="moi.html",700);
+});
+const nomEl=document.getElementById("nom"),postnomEl=document.getElementById("postnom"),prenomEl=document.getElementById("prenom"),sexeEl=document.getElementById("sexe"),passwordEl=document.getElementById("password"),message=document.getElementById("message");
+document.getElementById("login").addEventListener("submit",e=>{
+ e.preventDefault();let u=users();let user=u.find(x=>x.nom.toLowerCase()===loginNom.value.trim().toLowerCase()&&x.password===loginPassword.value);
+ if(!user){loginMessage.innerHTML='<div class="msg">Nom ou mot de passe incorrect.</div>';return}
+ localStorage.setItem("lfa_current",String(user.id));location.href="moi.html";
+});
+</script>
+</body>
+</html>

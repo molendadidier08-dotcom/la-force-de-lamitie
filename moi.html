@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Mon espace - La Force de l'Amitié</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial;background:#f3f6fb;color:#172033}
+nav{background:#164579;padding:15px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}nav a{color:#fff;text-decoration:none;background:#245b96;padding:12px 18px;border-radius:25px;font-weight:bold}
+.box{max-width:700px;margin:35px auto;background:#fff;padding:30px;border-radius:24px;box-shadow:0 8px 25px #0001}h1{color:#164579;text-align:center}
+.profile{background:#f2f6fb;padding:20px;border-radius:15px;line-height:2}.pay{border:1px solid #d7dfeb;padding:15px;border-radius:12px;margin:10px 0}
+button{border:0;background:#b51643;color:white;padding:12px 20px;border-radius:25px;font-weight:bold}
+</style>
+</head>
+<body>
+<nav><a href="index.html">🏠 ACCUEIL</a><a href="connexion.html">🔐 CONNEXION</a><a href="paiement.html">💰 PAIEMENT</a><a href="moi.html">👤 MOI</a></nav>
+<div class="box"><h1>👤 Mon espace</h1><div id="content"></div></div>
+<script>
+const id=localStorage.getItem("lfa_current"), users=JSON.parse(localStorage.getItem("lfa_users")||"[]"),u=users.find(x=>String(x.id)===id),c=document.getElementById("content");
+if(!u){c.innerHTML="<p>Vous n'êtes pas connecté. <a href='connexion.html'>Créer ou ouvrir un compte</a>.</p>";}
+else{
+ const pays=u.payments||[],total=pays.reduce((s,p)=>s+Number(p.amount),0);
+ c.innerHTML=`<div class="profile"><b>Nom :</b> ${u.nom}<br><b>Postnom :</b> ${u.postnom}<br><b>Prénom :</b> ${u.prenom}<br><b>Sexe :</b> ${u.sexe}<br><b>Compte créé :</b> ${u.createdAt}<br><b>Total des paiements :</b> ${total.toLocaleString("fr-FR")} CDF</div><h2>🧾 Mes paiements</h2>${pays.length?pays.map(p=>`<div class="pay"><b>${Number(p.amount).toLocaleString("fr-FR")} CDF</b><br>Référence : ${p.reference}<br>Date : ${p.date}<br>Statut : ${p.status}</div>`).join(""):"<p>Aucun paiement enregistré dans cet espace.</p>"}<br><button onclick="localStorage.removeItem('lfa_current');location.href='index.html'">Se déconnecter</button>`;
+}
+</script>
+</body>
+</html>
